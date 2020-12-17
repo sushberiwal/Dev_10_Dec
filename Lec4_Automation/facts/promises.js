@@ -10,6 +10,7 @@ console.log(f1KaPendingPromise);
 
 // scb => success callback
 f1KaPendingPromise.then(function(data){
+    console.log(f1KaPendingPromise);
     console.log(""+data);
 });
 
