@@ -67,13 +67,19 @@ launchPromise
     for(let i=0 ; i<allLinks.length ; i++){
       completeLinks.push( `https://www.hackerrank.com${allLinks[i]}` );
     }
-
     // console.log(completeLinks);
+    
     let firstQuesSolvePromise = solveQuestion(completeLinks[0]);
+    for(let i=1 ; i<completeLinks.length ; i++){
+      firstQuesSolvePromise = firstQuesSolvePromise.then(function(){
+        let nextQuesSolvePromise = solveQuestion(completeLinks[i]);
+        return nextQuesSolvePromise;
+      })
+    }
     return firstQuesSolvePromise;
   })
   .then(function(){
-    console.log("First question solved !!!");
+    console.log("All questions solved !!!");
   })
   .catch(function (error) {
       console.log(error);
@@ -187,12 +193,34 @@ function pasteCode(){
   })
 }
 
+function handleLockBtn(){
+  return new Promise(function(resolve , reject){
+    let waitPromise = tab.waitForSelector('.ui-btn.ui-btn-normal.ui-btn-primary.ui-btn-styled' , {visible:true , timeout:5000});
+    waitPromise.then(function(){
+      let clickPromise = tab.click('.ui-btn.ui-btn-normal.ui-btn-primary.ui-btn-styled');
+      return clickPromise;
+    })
+    .then(function(){
+      console.log("lock Btn Found !!");
+      resolve();
+    })
+    .catch(function(error){
+      console.log("lock Btn Not Found !!!");
+      resolve();
+    })
+  })
+}
+
 function solveQuestion(quesLink){
   return new Promise( function(resolve ,reject){
     let quesGotoPromise = tab.goto(quesLink);
     quesGotoPromise.then(function(){
       let waitAndClickPromise = waitAndClick('div[data-attr2="Editorial"]');
       return waitAndClickPromise;
+    })
+    .then(function(){
+      let lockBtnHandle = handleLockBtn();
+      return lockBtnHandle;
     })
     .then(function(){
       let codePromise = getCode();
